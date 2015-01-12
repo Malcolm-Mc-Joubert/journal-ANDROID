@@ -67,7 +67,7 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 		//Initialisation du login pour test
 		editTextNumero.setText("2");
 		editTextDate.setText("10/06/2014");
-		editTextArticleTitre.setText("Charlie hebdo");
+		editTextArticleTitre.setText("affaire d'etat");
 		editTextArticleChapeau.setText("assasinat");
 		editTextArticleResume.setText("Le besoin de clarification n'est tristement pas de trop, étant donné les violences ");
 		editTextArticleTexte.setText("Le Monde a ainsi publié un article évoquant Samir, qui travaille dans les cuisines d'un lycée de Saint-Germain-en-Laye, dans les Yvelines, et a appris à côté de ses collègues la nouvelle de l'attentat. A ce moment-là, il «se rend compte que le regard de ses quatre ");
