@@ -39,7 +39,7 @@ public class MenuPrincipal extends ListActivity {
 	    case 7:
 	    	break;
 	    case 8:
-	    	intentionNavigation = new Intent(this,TestDAO.class);
+	    	intentionNavigation = new Intent(this,ArticleSuppression.class);
 	    	break;
 	    case 9:
 	    	break;

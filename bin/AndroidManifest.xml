@@ -59,6 +59,11 @@
             android:name=".ArticlePlus"
             android:label="@string/title_article_plus" >
         </activity>
+        
+         <activity
+            android:name=".ArticleSuppression"
+            android:label="@string/title_article_suppression" >
+        </activity>
     </application>
 
 </manifest>

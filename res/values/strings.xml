@@ -60,10 +60,11 @@
     <string name="title_activity_etat_article">CRUD Etats articles</string>
     <string name="title_activity_contributeur">CRUD Contributeur</string>
     <string name="title_activity_article_ajout">Article+</string>
-    <string name="title_activity_article_suppression">Article-</string>
+    <string name="title_article_suppression">Article-</string>
     <string name="title_activity_article_validation">Validation</string>
     <string name="title_activity_article_modification">Modification</string>
     <string name="title_activity_article_archivage">Archivage</string>
+    
 
     <!-- JOURNALISTES -->
 
