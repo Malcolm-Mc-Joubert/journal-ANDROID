@@ -134,8 +134,7 @@
             <EditText
                 android:id="@+id/editTextArticleResume"
                 android:layout_width="wrap_content"
-                android:layout_height="110dp"
-                android:layout_weight="1"
+                android:layout_height="87dp"
                 android:ems="10"
                 android:inputType="textMultiLine" />
 
@@ -155,7 +154,7 @@
             <EditText
                 android:id="@+id/editTextArticleTexte"
                 android:layout_width="wrap_content"
-                android:layout_height="172dp"
+                android:layout_height="126dp"
                 android:ems="10"
                 android:inputType="textMultiLine" />
 

@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.database.SQLException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import android.widget.TextView;
  */
 public class ArticleSuppression extends Activity implements OnClickListener {
 
+	// Déclaration des elements de l'interface
 	private Spinner spinnerSeletionnerArticle;
 	private EditText editTextNumero;
 	private EditText editTextDate;
@@ -92,13 +94,15 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 			Connection cnx = null;
 			PreparedStatement preparedStatement = null;
 			// ma requete préparer poru un delete
-			String deleteSQL = "DELETE  FROM journal2014.article article WHERE  article.id_article = idArticle;";
+			String deleteSQL = "DELETE  FROM journal2014.article WHERE  article.id_article = ?";
 
 			try {
 				cnx = DbConnexion.connect();
 				preparedStatement = cnx.prepareStatement(deleteSQL);
+				
 				preparedStatement.setInt(1, 1001);
-
+				
+                Log.e("requete", deleteSQL);
 				// Exécuter supprimer SQL stetement
 				preparedStatement.executeUpdate();
 
@@ -182,7 +186,21 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 		// --- Tache asynchrone quand on appuiera sur le boutton supprimer
 				if (v == buttonSuppression) {
 					new TacheAsynchrone().execute("");
-				} //// if buttonTacheAsynchrone
+				 //// if buttonTacheAsynchrone
+				
+			// pour rafraichir le zones de texte.
+					editTextNumero.setText("");
+					editTextDate.setText("");
+					editTextArticleTitre.setText("");
+					editTextArticleChapeau.setText("");
+					editTextArticleResume.setText("");
+					editTextArticleTexte.setText("");
+					textViewArticleContributeur.setText("");
+					textViewArticleCategorie.setText("");
+					textViewArticleRubrique.setText("");
+					textViewArticleMotCle.setText("");
+
+				}
 
 	}
 }
