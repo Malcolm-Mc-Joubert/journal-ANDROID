@@ -1,7 +1,9 @@
 package fr.m2i.journal2014;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+
 
 import fr.m2i.journal2014.models.DbConnexion;
 
@@ -12,6 +14,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -24,7 +29,7 @@ import android.widget.TextView;
  * @author formation
  * 
  */
-public class ArticleSuppression extends Activity implements OnClickListener {
+public class ArticleSuppression extends Activity implements OnClickListener, OnItemSelectedListener {
 
 	// Déclaration des elements de l'interface
 	private Spinner spinnerSeletionnerArticle;
@@ -40,6 +45,11 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 	private TextView textViewArticleMotCle;
 	private Button buttonSuppression;
 	private TextView textViewMessage;
+	
+	private ResultSet lrs;
+	private Statement lstSQL;
+	private Map<String, Integer> listArticle;
+	private ArrayAdapter<String> aaServices;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +57,7 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 		setContentView(R.layout.article_suppression);
 
 		initInterface();
+		
 
 	}
 
@@ -64,9 +75,9 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 		textViewArticleRubrique = (TextView) findViewById(R.id.textViewArticleRubrique);
 		textViewArticleMotCle = (TextView) findViewById(R.id.textViewArticleMotCle);
 		buttonSuppression = (Button) findViewById(R.id.buttonSuppression);
-		textViewMessage = (TextView)findViewById(R.id.textViewMessage);
-		
-		//Initialisation du login pour test
+		textViewMessage = (TextView) findViewById(R.id.textViewMessage);
+
+		// Initialisation du login pour test
 		editTextNumero.setText("2");
 		editTextDate.setText("10/06/2014");
 		editTextArticleTitre.setText("affaire d'etat");
@@ -78,129 +89,184 @@ public class ArticleSuppression extends Activity implements OnClickListener {
 		textViewArticleRubrique.setText("......");
 		textViewArticleMotCle.setText("violence");
 
-
 		buttonSuppression.setOnClickListener(this);
+		spinnerSeletionnerArticle.setOnItemSelectedListener(this);
 
 	}
 
-	private class TacheAsynchrone extends AsyncTask<String, Integer, String> {
+	private class TacheAsynchroneSelect extends AsyncTask<String, Integer, Map<String, Integer>> {
 		@Override
 		// ----------------------------
-		protected String doInBackground(String... asParametres) {
+		protected HashMap<String, Integer> doInBackground(String... asParametres) {
 
 			String lsResultat = "";
-			int liProgression;
-
+			
+			listArticle = new HashMap<String, Integer>();
 			Connection cnx = null;
-			PreparedStatement preparedStatement = null;
-			// ma requete préparer poru un delete
-			String deleteSQL = "DELETE  FROM journal2014.article WHERE  article.id_article = ?";
+			Statement lstSQL = null;
+			// ma requete préparer pour un select, pour pouvoir remplir le spinner.
+			String selectSQL = ("SELECT  id_article,titre_article FROM article");
 
 			try {
-				cnx = DbConnexion.connect();
-				preparedStatement = cnx.prepareStatement(deleteSQL);
-				
-				preparedStatement.setInt(1, 1001);
-				
-                Log.e("requete", deleteSQL);
-				// Exécuter supprimer SQL stetement
-				preparedStatement.executeUpdate();
+				lstSQL =   cnx.createStatement();
+	            lrs = lstSQL.executeQuery(selectSQL);
+	            while (lrs.next()) {
+	            	listArticle.put(lrs.getString(2), lrs.getInt(1));
+	            }
+	            
+	            
+				Log.e("requete", selectSQL);
 
-				lsResultat = "l'article est supprimé !";
+				lsResultat = "l'article est selectionné !";
 
 			} catch (Exception e) {
-
 				System.out.println(e.getMessage());
 				lsResultat = e.getMessage();
 			}
 
-			// Execute la tache en arriere-plan et maj de la barre de
-			// progression
-			// for (liProgression = 0; liProgression < 100; liProgression++) {
-			// try {
-			// Thread.sleep(10);
-			// } catch (InterruptedException e) {
-			// }
-			// // Sans l'appel a cette methode l'UI n'est pas maj
-			// publishProgress(liProgression);
-			// }
+			return  listArticle;
+		} // / doInBackgroundSelect
+		
+	}
+		
 
-			// lsResultat = Integer.toString(liProgression) + " %";
-			// Renvoie la valeur a onPostExecute
-			return lsResultat;
-		} // / doInBackground
+		private class TacheAsynchroneDelete extends
+				AsyncTask<String, Integer, String> {
+			@Override
+			// ----------------------------
+			protected String doInBackground(String... asParametres) {
 
-		@Override
-		// ----------------------------
-		protected void onProgressUpdate(Integer... aiProgressions) {
+				String lsResultat = "";
+				int liProgression;
 
-			// Synchronisation avec le thread de l'UI
-			// MAJ de la barre de progression
-			// barreDeProgression.setProgress(aiProgressions[0]);
-			// textViewProgressionPourcentage.setText(Integer.toString(aiProgressions[0])
-			// + " %");
-		} // / onProgressUpdate
+				Connection cnx = null;
+				PreparedStatement preparedStatement = null;
+				// ma requete préparer pour un delete
+				String deleteSQL = "DELETE  FROM journal2014.article WHERE  article.id_article = ?";
 
-		@Override
-		// -------------------------
-		protected void onPostExecute(String asResultat) {
+				try {
+					cnx = DbConnexion.connect();
+					preparedStatement = cnx.prepareStatement(deleteSQL);
 
-			// Synchronisation avec le thread de l'UI
-			// Affiche le resultat final
-			// barreDeProgression.setProgress(100);
-			// textViewProgressionPourcentage.setText(asResultat);
-			
-			
-			textViewMessage.setText(asResultat);
-			
-		} // / onPostExecute
-	} // / TacheAsynchrone
-		// / TacheAsynchroneTest
+					preparedStatement.setInt(1, 1001);
 
-	/*
-	 * private static void supprimmerArticle() throws SQLException {
-	 * 
-	 * Connection cnx = null; PreparedStatement preparedStatement = null; // ma
-	 * requete préparer poru un delete String deleteSQL =
-	 * "DELETE  FROM journal2014.article article WHERE  article.id_article = idArticle;"
-	 * ;
-	 * 
-	 * try { cnx = DbConnexion.connect(); preparedStatement =
-	 * cnx.prepareStatement(deleteSQL); preparedStatement.setInt(1, 1001);
-	 * 
-	 * //Exécuter supprimer SQL stetement preparedStatement.executeUpdate();
-	 * 
-	 * System.out.println("L'article est supprimmé!");
-	 * 
-	 * } catch (Exception e) {
-	 * 
-	 * System.out.println(e.getMessage());
-	 * 
-	 * } }
-	 */
+					Log.e("requete", deleteSQL);
+					// Exécuter supprimer SQL stetement
+					preparedStatement.executeUpdate();
+
+					lsResultat = "l'article est supprimé !";
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+					lsResultat = e.getMessage();
+				}
+
+				// Execute la tache en arriere-plan et maj de la barre de
+				// progression
+				// for (liProgression = 0; liProgression < 100; liProgression++)
+				// {
+				// try {
+				// Thread.sleep(10);
+				// } catch (InterruptedException e) {
+				// }
+				// // Sans l'appel a cette methode l'UI n'est pas maj
+				// publishProgress(liProgression);
+				// }
+
+				// lsResultat = Integer.toString(liProgression) + " %";
+				// Renvoie la valeur a onPostExecute
+				return lsResultat;
+			} // / doInBackground
+
+			@Override
+			// ----------------------------
+			protected void onProgressUpdate(Integer... aiProgressions) {
+
+				// Synchronisation avec le thread de l'UI
+				// MAJ de la barre de progression
+				// barreDeProgression.setProgress(aiProgressions[0]);
+				// textViewProgressionPourcentage.setText(Integer.toString(aiProgressions[0])
+				// + " %");
+			} // / onProgressUpdate
+
+			@Override
+			// -------------------------
+			protected void onPostExecute(String asResultat) {
+
+				// Synchronisation avec le thread de l'UI
+				// Affiche le resultat final
+				// barreDeProgression.setProgress(100);
+				// textViewProgressionPourcentage.setText(asResultat);
+
+				textViewMessage.setText(asResultat);
+
+			} // / onPostExecute
+		} // / TacheAsynchrone
+			// / TacheAsynchroneTest
+
+		/*
+		 * private static void supprimmerArticle() throws SQLException {
+		 * 
+		 * Connection cnx = null; PreparedStatement preparedStatement = null; //
+		 * ma requete préparer poru un delete String deleteSQL =
+		 * "DELETE  FROM journal2014.article article WHERE  article.id_article = idArticle;"
+		 * ;
+		 * 
+		 * try { cnx = DbConnexion.connect(); preparedStatement =
+		 * cnx.prepareStatement(deleteSQL); preparedStatement.setInt(1, 1001);
+		 * 
+		 * //Exécuter supprimer SQL stetement preparedStatement.executeUpdate();
+		 * 
+		 * System.out.println("L'article est supprimmé!");
+		 * 
+		 * } catch (Exception e) {
+		 * 
+		 * System.out.println(e.getMessage());
+		 * 
+		 * } }
+		 */
+
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+
+			// --- Tache asynchrone quand on appuiera sur le boutton supprimer
+			if (v == buttonSuppression) {
+				new TacheAsynchrone().execute("");
+				// // if buttonTacheAsynchrone
+
+				// pour rafraichir le zones de texte.
+				editTextNumero.setText("");
+				editTextDate.setText("");
+				editTextArticleTitre.setText("");
+				editTextArticleChapeau.setText("");
+				editTextArticleResume.setText("");
+				editTextArticleTexte.setText("");
+				textViewArticleContributeur.setText("");
+				textViewArticleCategorie.setText("");
+				textViewArticleRubrique.setText("");
+				textViewArticleMotCle.setText("");
+
+			}
+		}
+	
 
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
+		
+	}
 
-		// --- Tache asynchrone quand on appuiera sur le boutton supprimer
-				if (v == buttonSuppression) {
-					new TacheAsynchrone().execute("");
-				 //// if buttonTacheAsynchrone
-				
-			// pour rafraichir le zones de texte.
-					editTextNumero.setText("");
-					editTextDate.setText("");
-					editTextArticleTitre.setText("");
-					editTextArticleChapeau.setText("");
-					editTextArticleResume.setText("");
-					editTextArticleTexte.setText("");
-					textViewArticleContributeur.setText("");
-					textViewArticleCategorie.setText("");
-					textViewArticleRubrique.setText("");
-					textViewArticleMotCle.setText("");
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+			long arg3) {
+		// TODO Auto-generated method stub
+		
+	}
 
-				}
-
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
